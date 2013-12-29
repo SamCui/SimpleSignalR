@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <script src="/Scripts/jquery-1.6.4.min.js"></script>
+    <script src="/Scripts/jquery.signalR-2.0.0.js"></script>
+
+    <script src="/signalr/hubs"></script>
+
+    <script type ="text/javascript">
+        $(function () {
+            var dataHub = $.connection.dataHub;
+
+            registerClientEvents(dataHub);
+
+            // Start Hub
+            $.connection.hub.start().done(function () {
+                $('#divServerMessage').append('<div>hub started</div>');
+
+                connectToHub(dataHub);
+            });
+
+        });
+
+        function connectToHub(dataHub) {
+            $("#btnName").click(function () {
+                var name = $("#txtName").val();
+
+                if (name.length > 0) {
+                    dataHub.server.connect(name);
+                }
+                else {
+                    alert("Please enter name");
+                }
+            });
+        }
+
+        function registerClientEvents(dataHub) {
+            dataHub.client.onConnected = function () {
+                $('#divServerMessage').append('<div>client connected</div>');
+            }
+
+            dataHub.client.messageReceived = function (userName, message) {
+                $('#divServerMessage').append('<div>' + userName + ' '+ message + '</div>');
+            }
+
+            dataHub.client.sendPrivateMessage = function (id, userName, message) {
+                $('#divServerMessage').append('<div>' + id + ' '+ userName + ' ' + message + '</div>');
+            }
+        }
+    </script>
+</head>
+<body>
+    <input type="text" id="txtName" />
+    <input type="button" id ="btnName" value="send my name"/>
+    <div id="divServerMessage">
+
+    </div>
+</body>
+</html>
